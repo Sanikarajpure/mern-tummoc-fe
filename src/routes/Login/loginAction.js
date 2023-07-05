@@ -6,15 +6,6 @@ import {
   removeTokenCookie,
 } from "../../Utilities/authTools.js";
 
-export const LoginUser = async (values) => {
-  const loginInfo = await axiosInstance.post("/auth/signin", {
-    email: values.email,
-    password: values.password,
-  });
-
-  return loginInfo.data;
-};
-
 export const LoginGoogle = async () => {
   const response = await axiosInstance.post("/auth/signinWithGoogle");
 
@@ -33,5 +24,6 @@ export const userIsAuth = async () => {
 
 export const userSignOut = async () => {
   await removeTokenCookie();
+
   return true;
 };

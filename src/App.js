@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import PreventSigninRoute from "./Utilities/preventSignRoute";
 import PrivateRoute from "./Utilities/PrivateRoute";
 import Toggle from "./Utilities/toggle";
-import Register from "./routes/Register";
 import Login from "./routes/Login";
 import Home from "./routes/Home/components/home";
 import "./App.css";
@@ -18,7 +17,6 @@ function App() {
 
         <Routes>
           <Route path="/" element={<PreventSigninRoute />}>
-            <Route exact path="/register" element={<Register />} />
             <Route exact path="/" element={<Login />} />
           </Route>
 

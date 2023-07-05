@@ -1,23 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getFileContents, writeToFile } from "../fileAction";
+import { getAllFiles, uploadFile } from "../fileAction";
+import { useDispatch } from "react-redux";
+import { login_user } from "../../../Actions/userActions";
 import { userSignOut } from "../../Login/loginAction";
 import { useNavigate } from "react-router-dom";
+import FileCard from "./fileCard";
+import "./home.css";
 import { Oval } from "react-loader-spinner";
 
 const Home = () => {
   const user = useSelector((state) => state.User.loginInfo?.user);
   const navigate = useNavigate();
-  const [fileData, setFileData] = useState("");
-  const [textData, setTextData] = useState("");
+  const dispatch = useDispatch();
+  let file = null;
+  const [userFiles, setUserFiles] = useState([]);
   const [loader, setLoader] = useState(false);
-  const handleFileOps = async () => {
+
+  const handleFileUpload = async () => {
     try {
       setLoader(true);
-      let data = await writeToFile(textData);
-      setFileData(data);
-      setTextData("");
+      let dataToUpload = {
+        file: file,
+        id: user._id,
+      };
+      let data = await uploadFile(dataToUpload);
+
+      setUserFiles(data);
       setLoader(false);
+      alert("File uploded");
     } catch (error) {
       console.log(error);
     }
@@ -27,6 +38,16 @@ const Home = () => {
     try {
       let state = userSignOut();
       if (state) {
+        dispatch(
+          login_user({
+            user: {
+              firstname: null,
+              lastname: null,
+              email: null,
+            },
+            auth: null,
+          })
+        );
         navigate("/");
       }
     } catch (error) {
@@ -34,17 +55,25 @@ const Home = () => {
     }
   };
 
+  const handleFileChange = (e) => {
+    file = e.target.files[0];
+  };
+
   useEffect(() => {
     const handleFileData = async () => {
       try {
-        let data = await getFileContents();
-        setFileData(data);
+        let dataToBeSent = {
+          id: user._id,
+        };
+        let data = await getAllFiles(dataToBeSent);
+        console.log(data);
+        setUserFiles(data);
       } catch (error) {
         console.log(error);
       }
     };
     handleFileData();
-  }, []);
+  }, [user._id]);
 
   return (
     <div className="text-light-call-sec dark:text-light-accent  items-center ">
@@ -65,16 +94,15 @@ const Home = () => {
           </button>
         </div>
       </div>
-      <div className="flex w-full justify-around p-8">
-        <div>
-          <div className="py-2">Write to the File</div>
+      <div className="flex w-full  p-2">
+        <div className="mx-8">
+          <div className="py-2">Upload files</div>
           <div>
             <input
-              className="p-2 bg-dark-accent dark:bg-white"
-              type="text"
-              value={textData}
+              className="p-2 bg-light-accent dark:bg-dark-hover"
+              type="file"
               onChange={(e) => {
-                setTextData(e.target.value);
+                handleFileChange(e);
               }}
             />
             <div>
@@ -86,19 +114,25 @@ const Home = () => {
                 <button
                   className=" pointer bg-whatsApp-green p-2 my-4 text-white rounded-md "
                   onClick={() => {
-                    handleFileOps();
+                    handleFileUpload();
                   }}
                 >
-                  Write
+                  Upload
                 </button>
               )}
             </div>
           </div>
         </div>
-        <div className="  w-80 ">
-          <div className="py-2">File contents</div>
-          <div className="bg-dark-accent dark:bg-white h-80 p-2 whitespace-pre-line">
-            {fileData ? fileData : "~Empty file~"}
+        <div className=" w-4/6 md:w-4/6   ">
+          <div className="py-2">Your Files</div>
+          <div className="fileDisplayBlock bg-light-accent dark:bg-dark-accent rounded  p-2 whitespace-pre-line flex flex-wrap">
+            {userFiles.length > 0
+              ? userFiles?.map((ele, index) => {
+                  return (
+                    <FileCard key={index} name={ele.fileName} url={ele.url} />
+                  );
+                })
+              : "~Upload Files to Krayo.io~"}
           </div>
         </div>
       </div>

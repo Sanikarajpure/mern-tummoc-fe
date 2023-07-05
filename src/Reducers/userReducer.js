@@ -1,10 +1,9 @@
-import { REGISTER_USER, LOGIN_USER, SIGNOUT_USER } from "../Actions/types";
+import { LOGIN_USER, SIGNOUT_USER } from "../Actions/types";
 let userDefault = {
   user: {
     firstname: null,
     lastname: null,
     email: null,
-    phone: null,
   },
   auth: null,
 };
